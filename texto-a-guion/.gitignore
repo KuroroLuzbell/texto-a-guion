@@ -16,11 +16,11 @@ __pycache__/
 venv/
 ENV/
 
-# Archivos generados (ocupan mucho espacio)
-audios_generados/
-imagenes_generadas/
-videos_generados/
-guiones_generados/
+# Proyectos generados (carpeta principal)
+proyectos/
+
+# Archivos de respaldo
+main_old.py
 
 # IDEs
 .vscode/
