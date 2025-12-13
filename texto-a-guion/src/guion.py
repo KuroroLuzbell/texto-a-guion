@@ -1,10 +1,9 @@
-"""
-Generación de guiones con Gemini
-"""
+"""Generación de guiones con Gemini"""
 
 import os
 import json
 import re
+from .config import obtener_modelo
 
 
 def generar_guion(client, tema: str, cantidad_palabras: int, estructura: dict) -> dict:
@@ -62,7 +61,7 @@ Genera el guión completo ahora:"""
 
     try:
         respuesta = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt
+            model=obtener_modelo("texto"), contents=prompt
         )
         texto_respuesta = respuesta.text.strip()
 

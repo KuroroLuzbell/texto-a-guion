@@ -1,10 +1,9 @@
-"""
-Generación de imágenes con Imagen 4.0
-"""
+"""Generación de imágenes con Imagen 4.0"""
 
 import os
 import math
 from google.genai import types
+from .config import obtener_modelo
 
 
 def dividir_texto_en_segmentos(
@@ -73,7 +72,7 @@ Responde SOLO con el prompt, sin explicaciones adicionales."""
 
     try:
         respuesta = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt_generador
+            model=obtener_modelo("texto"), contents=prompt_generador
         )
         return respuesta.text.strip()
     except Exception:
@@ -94,7 +93,7 @@ def generar_imagen(client, prompt: str, filepath: str) -> str:
     """
     try:
         response = client.models.generate_images(
-            model="imagen-4.0-generate-001",
+            model=obtener_modelo("imagen"),
             prompt=prompt,
             config=types.GenerateImagesConfig(
                 number_of_images=1,

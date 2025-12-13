@@ -10,6 +10,8 @@ import os
 from src import (
     configurar_gemini,
     cargar_estructura,
+    cargar_modelos,
+    obtener_modelo,
     generar_nombre_proyecto,
     crear_estructura_proyecto,
     crear_metadata_proyecto,
@@ -36,6 +38,13 @@ def main():
     # =========================================================
     # VERIFICACIONES INICIALES
     # =========================================================
+
+    # Cargar modelos configurados
+    modelos = cargar_modelos()
+    print("✅ Modelos cargados:")
+    print(f"   📝 Texto: {modelos['texto']}")
+    print(f"   🔊 TTS: {modelos['tts']}")
+    print(f"   🎨 Imagen: {modelos['imagen']}")
 
     try:
         estructura = cargar_estructura()

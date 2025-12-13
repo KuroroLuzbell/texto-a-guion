@@ -10,6 +10,10 @@ import os
 from src import (
     configurar_gemini,
     cargar_estructura,
+    cargar_modelos,
+    obtener_modelo,
+    obtener_opciones_modelos,
+    guardar_modelos,
     generar_nombre_proyecto,
     crear_estructura_proyecto,
     crear_metadata_proyecto,
@@ -29,6 +33,7 @@ from src.guion import cargar_guion
 from src.audio import mostrar_opciones_voz, obtener_voz
 from src.video import crear_video_desde_proyecto
 from src.youtube import mostrar_opciones_privacidad, obtener_privacidad
+from src.shorts import generar_shorts_desde_url
 
 
 def mostrar_menu_principal():
@@ -47,6 +52,9 @@ def mostrar_menu_principal():
     print()
     print("[7] 📂 Ver proyectos existentes")
     print("[8] 🔄 Retomar proyecto incompleto")
+    print("[9] ⚙️  Configurar modelos de IA")
+    print()
+    print("[10] 📱 Extraer SHORTS desde YouTube")
     print()
     print("[0] ❌ Salir")
     print()
@@ -95,9 +103,137 @@ def seleccionar_proyecto() -> tuple:
 def flujo_completo(client, estructura):
     """Ejecuta el flujo completo de creación."""
     # Importar main y ejecutar
-    from main_new import main
+    from main import main
 
     main()
+
+
+def configurar_modelos_ia():
+    """Permite configurar los modelos de IA a usar."""
+    print("\n⚙️  CONFIGURAR MODELOS DE IA")
+    print("-" * 40)
+
+    modelos_actuales = cargar_modelos()
+    opciones = obtener_opciones_modelos()
+
+    print("\n📋 Modelos actuales:")
+    print(f"   📝 Texto: {modelos_actuales['texto']}")
+    print(f"   🔊 TTS:   {modelos_actuales['tts']}")
+    print(f"   🎨 Imagen: {modelos_actuales['imagen']}")
+
+    print("\n¿Qué modelo deseas cambiar?\n")
+    print("[1] 📝 Modelo de texto (guiones y prompts)")
+    print("[2] 🔊 Modelo TTS (voz)")
+    print("[3] 🎨 Modelo de imágenes")
+    print("[0] ↩️  Volver al menú")
+
+    opcion = input("\n> ").strip()
+
+    if opcion == "1":
+        print("\n📝 MODELO DE TEXTO")
+        print("Opciones disponibles:")
+        for i, modelo in enumerate(opciones.get("texto", []), 1):
+            actual = " (actual)" if modelo == modelos_actuales["texto"] else ""
+            print(f"   [{i}] {modelo}{actual}")
+
+        try:
+            sel = int(input("\nSelecciona > ").strip())
+            if 1 <= sel <= len(opciones["texto"]):
+                nuevo_modelo = opciones["texto"][sel - 1]
+                guardar_modelos({"texto": nuevo_modelo})
+                print(f"✅ Modelo de texto cambiado a: {nuevo_modelo}")
+            else:
+                print("❌ Selección inválida")
+        except ValueError:
+            print("❌ Entrada inválida")
+
+    elif opcion == "2":
+        print("\n🔊 MODELO TTS")
+        print("Opciones disponibles:")
+        for i, modelo in enumerate(opciones.get("tts", []), 1):
+            actual = " (actual)" if modelo == modelos_actuales["tts"] else ""
+            print(f"   [{i}] {modelo}{actual}")
+
+        try:
+            sel = int(input("\nSelecciona > ").strip())
+            if 1 <= sel <= len(opciones["tts"]):
+                nuevo_modelo = opciones["tts"][sel - 1]
+                guardar_modelos({"tts": nuevo_modelo})
+                print(f"✅ Modelo TTS cambiado a: {nuevo_modelo}")
+            else:
+                print("❌ Selección inválida")
+        except ValueError:
+            print("❌ Entrada inválida")
+
+    elif opcion == "3":
+        print("\n🎨 MODELO DE IMÁGENES")
+        print("Opciones disponibles:")
+        for i, modelo in enumerate(opciones.get("imagen", []), 1):
+            actual = " (actual)" if modelo == modelos_actuales["imagen"] else ""
+            print(f"   [{i}] {modelo}{actual}")
+
+        try:
+            sel = int(input("\nSelecciona > ").strip())
+            if 1 <= sel <= len(opciones["imagen"]):
+                nuevo_modelo = opciones["imagen"][sel - 1]
+                guardar_modelos({"imagen": nuevo_modelo})
+                print(f"✅ Modelo de imágenes cambiado a: {nuevo_modelo}")
+            else:
+                print("❌ Selección inválida")
+        except ValueError:
+            print("❌ Entrada inválida")
+
+    elif opcion == "0":
+        return
+    else:
+        print("❌ Opción no válida")
+
+
+def extraer_shorts_menu(client):
+    """Extrae shorts desde un video de YouTube."""
+    print("\n📱 EXTRAER SHORTS DESDE YOUTUBE")
+    print("-" * 40)
+
+    # Pedir URL
+    print("\n🔗 Ingresa la URL del video de YouTube:")
+    url = input("> ").strip()
+
+    if not url:
+        print("❌ URL no puede estar vacía")
+        return
+
+    # Pedir número de shorts
+    print("\n🔢 ¿Cuántos shorts quieres generar? (1-5, default: 3)")
+    try:
+        num_input = input("> ").strip()
+        num_shorts = int(num_input) if num_input else 3
+        num_shorts = max(1, min(5, num_shorts))
+    except ValueError:
+        num_shorts = 3
+
+    # Método de conversión
+    print("\n📱 ¿Cómo convertir a formato vertical?")
+    print("   [1] 🤖 Smart (IA detecta sujeto) - Recomendado")
+    print("   [2] 🌫️  Blur (fondo difuminado)")
+    print("   [3] ✂️  Crop (recortar centro)")
+
+    metodo_input = input("> ").strip()
+    if metodo_input == "2":
+        metodo = "blur"
+    elif metodo_input == "3":
+        metodo = "crop"
+    else:
+        metodo = "smart"
+
+    # Ejecutar
+    resultado = generar_shorts_desde_url(client, url, num_shorts, metodo)
+
+    if "error" in resultado:
+        print(f"\n❌ Error: {resultado['error']}")
+    elif resultado.get("cancelado"):
+        print("\n👋 Proceso cancelado")
+    else:
+        print("\n🎉 ¡Shorts generados exitosamente!")
 
 
 def solo_guion(client, estructura):
@@ -483,6 +619,12 @@ def main():
     """Función principal del menú."""
     # Inicializar
     try:
+        modelos = cargar_modelos()
+        print("✅ Modelos cargados:")
+        print(f"   📝 Texto: {modelos['texto']}")
+        print(f"   🔊 TTS: {modelos['tts']}")
+        print(f"   🎨 Imagen: {modelos['imagen']}")
+
         client = configurar_gemini()
         estructura = cargar_estructura()
     except Exception as e:
@@ -512,6 +654,10 @@ def main():
             ver_proyectos()
         elif opcion == "8":
             retomar_proyecto(client, estructura)
+        elif opcion == "9":
+            configurar_modelos_ia()
+        elif opcion == "10":
+            extraer_shorts_menu(client)
         else:
             print("❌ Opción no válida")
 

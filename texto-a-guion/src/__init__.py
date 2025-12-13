@@ -2,7 +2,17 @@
 Módulos del Generador de Videos para YouTube con Gemini
 """
 
-from .config import configurar_gemini, cargar_estructura, PROYECTOS_DIR, BASE_DIR
+from .config import (
+    configurar_gemini,
+    cargar_estructura,
+    PROYECTOS_DIR,
+    BASE_DIR,
+    cargar_modelos,
+    obtener_modelo,
+    obtener_opciones_modelos,
+    guardar_modelos,
+    MODELOS,
+)
 from .proyecto import (
     generar_nombre_proyecto,
     crear_estructura_proyecto,
@@ -16,6 +26,7 @@ from .audio import generar_audio, obtener_duracion_audio
 from .imagenes import generar_imagenes
 from .video import crear_video, verificar_ffmpeg
 from .youtube import subir_video_youtube
+from .shorts import generar_shorts_desde_url, extraer_video_id, obtener_transcripcion
 
 __all__ = [
     # Config
@@ -23,6 +34,11 @@ __all__ = [
     "cargar_estructura",
     "PROYECTOS_DIR",
     "BASE_DIR",
+    "cargar_modelos",
+    "obtener_modelo",
+    "obtener_opciones_modelos",
+    "guardar_modelos",
+    "MODELOS",
     # Proyecto
     "generar_nombre_proyecto",
     "crear_estructura_proyecto",
@@ -45,4 +61,8 @@ __all__ = [
     "verificar_ffmpeg",
     # YouTube
     "subir_video_youtube",
+    # Shorts
+    "generar_shorts_desde_url",
+    "extraer_video_id",
+    "obtener_transcripcion",
 ]

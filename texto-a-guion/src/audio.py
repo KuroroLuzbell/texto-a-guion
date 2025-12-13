@@ -1,10 +1,9 @@
-"""
-Generación de audio con Gemini TTS
-"""
+"""Generación de audio con Gemini TTS"""
 
 import os
 import wave
 from google.genai import types
+from .config import obtener_modelo
 
 
 def guardar_audio_wav(audio_data: bytes, filepath: str, sample_rate: int = 24000):
@@ -33,7 +32,7 @@ def generar_audio_gemini(client, texto: str, filepath: str, voz: str = "Kore") -
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash-preview-tts",
+            model=obtener_modelo("tts"),
             contents=texto,
             config=types.GenerateContentConfig(
                 response_modalities=["AUDIO"],
