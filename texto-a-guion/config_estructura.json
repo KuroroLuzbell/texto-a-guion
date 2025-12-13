@@ -1,0 +1,39 @@
+{
+  "formato_salida": {
+    "titulo_sugerido": "Un Título de YouTube Corto, Viral y con Enganche",
+    "descripcion_sugerida": "Una breve descripción optimizada para SEO que resuma el misterio o la historia.",
+    "etiquetas_sugeridas": "lista,de,palabras,clave,separadas,por,comas"
+  },
+  "estructura_guion": [
+    {
+      "seccion": "Gancho (Hook) y Apertura",
+      "duracion_aprox_segundos": "10%",
+      "descripcion_audio": "La línea de apertura más impactante. DEBE EMPEZAR INMEDIATAMENTE CON EL MISTERIO O LA ACCIÓN.",
+      "descripcion_visual": "Toma visual clave para el gancho (Ej: 'Zoom lento a una puerta de madera vieja y crujiente')."
+    },
+    {
+      "seccion": "Nudo (Desarrollo del Misterio)",
+      "duracion_aprox_segundos": "45%",
+      "descripcion_audio": "El desarrollo principal de la historia, introduciendo personajes y el conflicto. Mantén el tono de misterio e intriga.",
+      "descripcion_visual": "Descripciones de escenas dinámicas que ilustren la narración. (Ej: 'Secuencia rápida de pasos en un pasillo oscuro; Primer plano de un mapa antiguo.')"
+    },
+    {
+      "seccion": "Clímax y Revelación",
+      "duracion_aprox_segundos": "25%",
+      "descripcion_audio": "El momento de máxima tensión, el punto de inflexión y la revelación del misterio o la verdad.",
+      "descripcion_visual": "Descripción de la toma crucial y dramática. (Ej: 'Linterna iluminando un objeto escondido; Silueta en una ventana bajo la luna llena.')"
+    },
+    {
+      "seccion": "Resolución y Reflexión",
+      "duracion_aprox_segundos": "10%",
+      "descripcion_audio": "Cierre de la historia, las consecuencias o una reflexión final que deje pensando al espectador.",
+      "descripcion_visual": "Toma de transición más tranquila. (Ej: 'Vista de la ciudad desde la distancia de noche, enfoque suave.')"
+    },
+    {
+      "seccion": "Llamada a la Acción (CTA) y Cierre",
+      "duracion_aprox_segundos": "10%",
+      "descripcion_audio": "Líneas finales para pedir al espectador que se suscriba, comente o vea otro video. Debe sonar natural y parte del tono.",
+      "descripcion_visual": "Fondo estático con logo del canal o una pantalla de agradecimiento simple. (Ej: 'Animación de botón de suscribirse.')"
+    }
+  ]
+}

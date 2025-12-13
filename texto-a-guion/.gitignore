@@ -1,0 +1,33 @@
+# Archivos de entorno y credenciales (IMPORTANTE: nunca subir)
+.env
+*.pickle
+youtube_token.pickle
+client_secret*.json
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+
+# Archivos generados (ocupan mucho espacio)
+audios_generados/
+imagenes_generadas/
+videos_generados/
+guiones_generados/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
