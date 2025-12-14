@@ -10,7 +10,14 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from .config import BASE_DIR
 
-YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+# Scopes necesarios: subir videos + leer info de canales
+YOUTUBE_SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.readonly",
+]
+
+# Canal seleccionado para la sesión actual
+_canal_seleccionado = None
 
 
 def obtener_credenciales_youtube():
@@ -56,6 +63,77 @@ def obtener_credenciales_youtube():
     return credentials
 
 
+def obtener_canales_disponibles(youtube):
+    """
+    Obtiene la lista de canales disponibles para el usuario autenticado.
+
+    Returns:
+        Lista de diccionarios con info de cada canal
+    """
+    request = youtube.channels().list(part="snippet,contentDetails", mine=True)
+    response = request.execute()
+
+    canales = []
+    for item in response.get("items", []):
+        canales.append(
+            {
+                "id": item["id"],
+                "titulo": item["snippet"]["title"],
+                "descripcion": item["snippet"].get("description", "")[:50],
+            }
+        )
+
+    return canales
+
+
+def seleccionar_canal(youtube):
+    """
+    Permite al usuario seleccionar en qué canal publicar.
+
+    Returns:
+        ID del canal seleccionado o None para usar el predeterminado
+    """
+    global _canal_seleccionado
+
+    # Si ya seleccionó un canal en esta sesión, preguntar si quiere mantenerlo
+    if _canal_seleccionado:
+        print(f"\n📺 Canal actual: {_canal_seleccionado['titulo']}")
+        respuesta = input("   ¿Usar este canal? (s/n): ").strip().lower()
+        if respuesta != "n":
+            return _canal_seleccionado["id"]
+
+    print("\n📺 SELECCIONAR CANAL DE YOUTUBE")
+    print("   Obteniendo tus canales...")
+
+    canales = obtener_canales_disponibles(youtube)
+
+    if not canales:
+        print("   ⚠️ No se encontraron canales. Se usará el predeterminado.")
+        return None
+
+    if len(canales) == 1:
+        print(f"   Solo tienes un canal: {canales[0]['titulo']}")
+        _canal_seleccionado = canales[0]
+        return canales[0]["id"]
+
+    print("\n   Canales disponibles:")
+    for i, canal in enumerate(canales, 1):
+        print(f"   [{i}] {canal['titulo']}")
+
+    while True:
+        try:
+            opcion = input(f"\n   Selecciona el canal (1-{len(canales)}): ").strip()
+            indice = int(opcion) - 1
+            if 0 <= indice < len(canales):
+                _canal_seleccionado = canales[indice]
+                print(f"   ✅ Seleccionado: {canales[indice]['titulo']}")
+                return canales[indice]["id"]
+            else:
+                print("   ⚠️ Opción no válida")
+        except ValueError:
+            print("   ⚠️ Ingresa un número válido")
+
+
 def subir_video_youtube(
     video_path: str, guion: dict, privacidad: str = "private"
 ) -> str:
@@ -74,6 +152,9 @@ def subir_video_youtube(
 
     credentials = obtener_credenciales_youtube()
     youtube = build("youtube", "v3", credentials=credentials)
+
+    # Permitir seleccionar el canal donde publicar
+    canal_id = seleccionar_canal(youtube)
 
     titulo = guion.get("titulo_sugerido", "Video generado con IA")[:100]
     descripcion = guion.get("descripcion_sugerida", "")
@@ -97,6 +178,10 @@ def subir_video_youtube(
         },
     }
 
+    # Si se seleccionó un canal específico, agregarlo al snippet
+    if canal_id:
+        body["snippet"]["channelId"] = canal_id
+
     media = MediaFileUpload(
         video_path,
         mimetype="video/mp4",
@@ -104,12 +189,15 @@ def subir_video_youtube(
         chunksize=1024 * 1024,
     )
 
+    # Usar onBehalfOfContentOwner si hay canal específico
     request = youtube.videos().insert(
         part=",".join(body.keys()), body=body, media_body=media
     )
 
     response = None
     print("   Subiendo...")
+    if _canal_seleccionado:
+        print(f"   📺 Canal destino: {_canal_seleccionado['titulo']}")
 
     while response is None:
         status, response = request.next_chunk()

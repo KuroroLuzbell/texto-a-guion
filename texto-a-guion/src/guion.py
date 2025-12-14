@@ -6,6 +6,56 @@ import re
 from .config import obtener_modelo
 
 
+def limpiar_json_gemini(texto: str) -> str:
+    """
+    Limpia caracteres de control problemáticos en respuestas JSON de Gemini.
+
+    Args:
+        texto: String JSON potencialmente con caracteres de control
+
+    Returns:
+        String JSON limpio
+    """
+    # Reemplazar caracteres de control dentro de strings JSON
+    # Esto maneja saltos de línea, tabs, etc. que Gemini a veces incluye
+    resultado = []
+    dentro_string = False
+    escape = False
+
+    for char in texto:
+        if escape:
+            resultado.append(char)
+            escape = False
+            continue
+
+        if char == "\\":
+            escape = True
+            resultado.append(char)
+            continue
+
+        if char == '"':
+            dentro_string = not dentro_string
+            resultado.append(char)
+            continue
+
+        if dentro_string:
+            # Dentro de un string, reemplazar caracteres de control
+            if char == "\n":
+                resultado.append(" ")  # Reemplazar salto de línea por espacio
+            elif char == "\r":
+                continue  # Ignorar retorno de carro
+            elif char == "\t":
+                resultado.append(" ")  # Reemplazar tab por espacio
+            elif ord(char) < 32:
+                continue  # Ignorar otros caracteres de control
+            else:
+                resultado.append(char)
+        else:
+            resultado.append(char)
+
+    return "".join(resultado)
+
+
 def generar_guion(client, tema: str, cantidad_palabras: int, estructura: dict) -> dict:
     """
     Genera un guión estructurado basado en el tema proporcionado.
@@ -74,6 +124,10 @@ Genera el guión completo ahora:"""
             texto_respuesta = texto_respuesta[:-3]
 
         texto_respuesta = texto_respuesta.strip()
+
+        # Limpiar caracteres de control problemáticos dentro de strings JSON
+        # Reemplazar saltos de línea literales dentro de valores por espacios
+        texto_respuesta = limpiar_json_gemini(texto_respuesta)
 
         # Parsear el JSON
         guion = json.loads(texto_respuesta)
