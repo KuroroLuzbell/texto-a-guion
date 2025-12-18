@@ -28,9 +28,17 @@ from src import (
     generar_imagenes,
     verificar_ffmpeg,
     subir_video_youtube,
+    crear_video_desde_audio,
+    listar_videos_disponibles,
 )
 from src.guion import cargar_guion
-from src.audio import mostrar_opciones_voz, obtener_voz
+from src.audio import (
+    mostrar_opciones_voz, 
+    obtener_voz,
+    mostrar_opciones_estilo,
+    obtener_estilo,
+    obtener_voz_recomendada,
+)
 from src.video import crear_video_desde_proyecto
 from src.youtube import mostrar_opciones_privacidad, obtener_privacidad
 from src.shorts import generar_shorts_desde_url
@@ -310,20 +318,34 @@ def solo_audio(client):
 
     guion = cargar_guion(rutas)
 
-    mostrar_opciones_voz()
-    voz = obtener_voz(input("> ").strip())
+    # Seleccionar estilo de narración
+    mostrar_opciones_estilo()
+    estilo_opcion = input("> ").strip()
+    estilo = obtener_estilo(estilo_opcion)
+    print(f"   → Estilo: {estilo['emoji']} {estilo['nombre']}")
 
-    print(f"\n⏳ Generando audio con voz '{voz}'...")
+    # Seleccionar voz con recomendación
+    voz_recomendada = obtener_voz_recomendada(estilo)
+    print(f"\n💡 Voz recomendada para {estilo['nombre']}: {voz_recomendada}")
+    mostrar_opciones_voz()
+    print("   [Enter] Usar voz recomendada")
+    voz_input = input("> ").strip()
+    if voz_input:
+        voz = obtener_voz(voz_input)
+    else:
+        voz = voz_recomendada
+
+    print(f"\n⏳ Generando audio con voz '{voz}' y estilo '{estilo['nombre']}'...")
 
     try:
-        audio_path = generar_audio(client, guion, rutas, voz)
+        audio_path = generar_audio(client, guion, rutas, voz, estilo)
         print(f"\n✅ Audio guardado en: {audio_path}")
 
         actualizar_metadata_proyecto(
             rutas,
             {
                 "estado": "audio_generado",
-                "configuracion": {"voz": voz},
+                "configuracion": {"voz": voz, "estilo": estilo["nombre"]},
                 "archivos": {"audio": "audio/narracion.wav"},
             },
         )
@@ -382,7 +404,7 @@ def solo_imagenes(client):
 
 
 def solo_video():
-    """Crea video para un proyecto con imágenes."""
+    """Crea video para un proyecto (con imágenes o video base loop)."""
     print("\n🎥 CREAR VIDEO")
     print("-" * 30)
 
@@ -395,33 +417,82 @@ def solo_video():
     if not metadata:
         return
 
-    # Verificar que tiene imágenes y audio
+    # Verificar que tiene audio
     audio_path = os.path.join(rutas["audio"], "narracion.wav")
     if not os.path.exists(audio_path):
         print("❌ Este proyecto no tiene audio.")
         return
 
-    imagenes_dir = rutas["imagenes"]
-    if not os.path.exists(imagenes_dir) or not os.listdir(imagenes_dir):
-        print("❌ Este proyecto no tiene imágenes.")
-        return
+    # Detectar el modo del proyecto
+    modo = metadata.get("configuracion", {}).get("modo", "imagenes")
+    
+    if modo == "video_loop":
+        # Modo video base (loop)
+        categoria_video = metadata.get("configuracion", {}).get("categoria_video", None)
+        
+        if not categoria_video:
+            # Preguntar categoría si no está definida
+            videos = listar_videos_disponibles()
+            if not videos:
+                print("❌ No hay videos base disponibles")
+                return
+            
+            print("\n📹 Selecciona categoría de video base:")
+            categorias = list(videos.keys())
+            for i, cat in enumerate(categorias, 1):
+                print(f"   {i}. {cat.capitalize()}")
+            
+            try:
+                opcion = int(input("> ").strip())
+                if 1 <= opcion <= len(categorias):
+                    categoria_video = categorias[opcion - 1]
+                else:
+                    categoria_video = categorias[0]
+            except ValueError:
+                categoria_video = categorias[0]
+        
+        print(f"\n🎥 Creando video con loop de '{categoria_video}'...")
+        
+        try:
+            video_path = os.path.join(rutas["video"], "video_final.mp4")
+            crear_video_desde_audio(audio_path, video_path, categoria_video)
+            print(f"\n✅ Video guardado en: {video_path}")
 
-    print("\n🎥 Creando video...")
+            actualizar_metadata_proyecto(
+                rutas,
+                {
+                    "estado": "video_generado",
+                    "archivos": {"video": "video/video_final.mp4"},
+                },
+            )
 
-    try:
-        video_path = crear_video_desde_proyecto(rutas)
-        print(f"\n✅ Video guardado en: {video_path}")
+        except RuntimeError as e:
+            print(f"❌ {e}")
+    
+    else:
+        # Modo imágenes generadas
+        imagenes_dir = rutas["imagenes"]
+        if not os.path.exists(imagenes_dir) or not os.listdir(imagenes_dir):
+            print("❌ Este proyecto no tiene imágenes.")
+            print("   Este proyecto usa modo 'imágenes'. Genera las imágenes primero.")
+            return
 
-        actualizar_metadata_proyecto(
-            rutas,
-            {
-                "estado": "video_generado",
-                "archivos": {"video": "video/video_final.mp4"},
-            },
-        )
+        print("\n🎥 Creando video con imágenes...")
 
-    except RuntimeError as e:
-        print(f"❌ {e}")
+        try:
+            video_path = crear_video_desde_proyecto(rutas)
+            print(f"\n✅ Video guardado en: {video_path}")
+
+            actualizar_metadata_proyecto(
+                rutas,
+                {
+                    "estado": "video_generado",
+                    "archivos": {"video": "video/video_final.mp4"},
+                },
+            )
+
+        except RuntimeError as e:
+            print(f"❌ {e}")
 
 
 def solo_youtube():

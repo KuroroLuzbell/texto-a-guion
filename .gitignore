@@ -18,6 +18,7 @@ ENV/
 
 # Proyectos generados (carpeta principal)
 proyectos/
+videos_base/
 
 # Archivos de respaldo
 main_old.py

@@ -1,0 +1,14 @@
+{
+    "carpeta_videos": "videos_base",
+    "categorias": {
+        "paisaje": {
+            "descripcion": "Videos de paisajes naturales",
+            "patron": "paisaje_*.mp4",
+            "archivos": [
+                "paisaje_01.mp4"
+            ]
+        }
+    },
+    "categoria_default": "paisaje",
+    "modo_seleccion": "aleatorio"
+}
