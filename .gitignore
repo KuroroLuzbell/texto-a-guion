@@ -19,6 +19,8 @@ ENV/
 # Proyectos generados (carpeta principal)
 proyectos/
 videos_base/
+.github/
+.agents/
 
 # Archivos de respaldo
 main_old.py

@@ -5,7 +5,7 @@
       "descripcion": "Modelo para generación de guiones y prompts visuales"
     },
     "tts": {
-      "modelo": "gemini-2.5-flash-preview-tts",
+      "modelo": "gemini-2.5-pro-preview-tts",
       "descripcion": "Modelo para conversión de texto a voz"
     },
     "imagen": {
@@ -22,7 +22,7 @@
       "gemini-1.5-pro"
     ],
     "tts": [
-      "gemini-2.5-flash-preview-tts"
+      "gemini-2.5-pro-preview-tts"
     ],
     "imagen": [
       "imagen-4.0-generate-001",

@@ -27,7 +27,7 @@ from src import (
     subir_video_youtube,
 )
 from src.audio import (
-    mostrar_opciones_voz, 
+    mostrar_opciones_voz,
     obtener_voz,
     mostrar_opciones_estilo,
     obtener_estilo,
@@ -38,21 +38,21 @@ from src.audio import (
 def mostrar_videos_disponibles():
     """Muestra los videos disponibles por categoría."""
     videos = listar_videos_disponibles()
-    
+
     print("\n📹 VIDEOS BASE DISPONIBLES:")
     print("-" * 40)
-    
+
     if not videos:
         print("   ⚠️  No hay videos configurados")
         print("   Agrega videos a la carpeta 'videos_base/'")
         return None
-    
+
     categorias = list(videos.keys())
     for i, (cat, info) in enumerate(videos.items(), 1):
         print(f"   {i}. {cat.capitalize()} ({info['total']} videos)")
-        if info['descripcion']:
+        if info["descripcion"]:
             print(f"      └─ {info['descripcion']}")
-    
+
     return categorias
 
 
@@ -130,15 +130,16 @@ def main():
     estilo_opcion = input("> ").strip()
     estilo = obtener_estilo(estilo_opcion)
     print(f"   → Estilo: {estilo['emoji']} {estilo['nombre']}")
-    
-    # 4. Voz (con recomendación basada en estilo)
+
+    # 4. Voz (solo sugerencia, sin mostrar menú de voces)
     voz_recomendada = obtener_voz_recomendada(estilo)
     print(f"\n💡 Voz recomendada para {estilo['nombre']}: {voz_recomendada}")
-    mostrar_opciones_voz()
-    print("   [Enter] Usar voz recomendada")
+    print(
+        "   [Enter] Usar voz recomendada o escribe el nombre exacto de otra voz válida"
+    )
     voz_input = input("> ").strip()
     if voz_input:
-        voz = obtener_voz(voz_input)
+        voz = voz_input
     else:
         voz = voz_recomendada
 
@@ -146,7 +147,7 @@ def main():
     print(f"\n📹 Selecciona categoría de video [1-{len(categorias)}]:")
     for i, cat in enumerate(categorias, 1):
         print(f"   {i}. {cat.capitalize()}")
-    
+
     try:
         opcion = int(input("> ").strip())
         if 1 <= opcion <= len(categorias):
@@ -155,7 +156,7 @@ def main():
             categoria_video = categorias[0]
     except ValueError:
         categoria_video = categorias[0]
-    
+
     print(f"   → Usando: {categoria_video}")
 
     # =========================================================

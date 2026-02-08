@@ -14,7 +14,7 @@ PROYECTOS_DIR = os.path.join(BASE_DIR, "proyectos")
 # Modelos por defecto (se sobrescriben con config_modelos.json)
 MODELOS = {
     "texto": "gemini-2.5-flash",
-    "tts": "gemini-2.5-flash-preview-tts",
+    "tts": "gemini-2.5-pro-preview-tts",
     "imagen": "imagen-4.0-generate-001",
 }
 

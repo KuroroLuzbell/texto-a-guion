@@ -7,6 +7,13 @@
             "archivos": [
                 "paisaje_01.mp4"
             ]
+        },
+        "terror" : {
+            "descripcion": "Videos de terror y suspenso",
+            "patron": "terror_*.mp4",
+            "archivos": [
+                "terror_01.mp4"
+            ]
         }
     },
     "categoria_default": "paisaje",
